@@ -1,0 +1,439 @@
+<!--
+	Extra Stuff:
+	- Delays to actions 
+	- Control of CSS elements with JS (changing visibility of elements)
+	- Making the computer have some level of 'intelligence' (making the computer stop drawing under certain conditions)
+		- Creating boolean checks as well as numeric checks multiple times per iteration in order to prevent double-decisions such as winning or losing twice after one round
+		- 
+	
+	Issues: 
+		- There is a strange occurance where if you keep clicking stand, the game will sometimes draw multiple cards for the bot and you will win even after the round has already ended and you've lost (fixed)
+		- Another strange issue where the game will die if you stand at certain values. (fixed)
+		- Bug where standing at 18-20 will make you win or lose twice rather than once (fixed)
+
+-->
+<!DOCTYPE html>
+<html lang="en">
+<div id="container">
+	<div id="header">
+	<header>
+		<title>Modified BlackJack Game</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="blackjack_stylesheet.css" rel="stylesheet">
+	
+		<script>
+	
+		var gamesToPlay = prompt("How many games would you like to play?");
+		
+		while (gamesToPlay == "" || gamesToPlay == null || isNaN(gamesToPlay) == true) {
+			gamesToPlay = prompt("Please enter a valid number of games that you would like to play")
+		}
+		
+		
+		var userTotal = 0;
+		var userCurrentCard = 0;
+		var computerTotal = 0;
+		var computerCurrentCard = 0;
+		var hasStood = false;
+		var gameDone = false;
+	
+		
+		// Hides the Start Game button once the user clicks it - also starts the game
+		function startAll() {
+			document.getElementById("startGameButton").style.visibility = "hidden";
+			startGame();
+		}
+		
+		
+		/*
+			
+			This function starts by generating a random number. - This no longer has use here because I disabled the delay on computerdraw here
+			The function then gets generates a random number 1-10 and stores it in userCurrentCard.
+			After those two pieces of code have run, both the hit and stand buttons become visible so that the user can interact with the game.
+			Once all of that has run, the program refreshes the text boxes that store values with the correct values.
+			
+			Once everything for the user has run the computer is told to draw a card
+			
+		*/
+		function startGame() {
+			var delayToUse = randomTime();
+			userCurrentCard = getCard();
+			document.getElementById("hitButton").style.visibility = "visible";
+			document.getElementById("standButton").style.visibility = "visible";
+			updateDisplays(userCurrentCard);
+			computerDraw();
+		
+		}
+		
+		/*
+		 The purpose of this function is to make sure the user does not go over 21, and if they do it ends the game
+			
+			*TO ADD HERE*
+				- Code to make the hit & stand buttons dissapear when the game ends (added)
+				- Check to make sure some statements are read only once the user has decided to stand. (added)
+				
+		*/
+		function checkScores() {
+		
+			if (hasStood == true && computerTotal > userTotal) {
+			
+				if (hasStood == true && computerTotal > userTotal) {
+					gameDone = true;
+					console.log("This is the third if statement in checkscore");
+					setTimeout(function() {endGame()}, 2000);
+				}
+				else if (hasStood == true && userTotal > computerTotal) {
+					gameDone = true;
+					console.log("This is the fourth if statement in checkscore");
+					setTimeout(function() {endGame()}, 2000);
+				}
+				else if (hasStood == true && computerTotal == userTotal) {
+					gameDone = true;
+					console.log("This is the fifth if statement in checkscore");
+					setTimeout(function() {endGame()}, 2000);
+				}
+				else {
+					""
+				}
+			}
+			else {
+				""
+			}
+			
+			if (userTotal > 21 || userTotal == 21) {
+				document.getElementById("hitButton").style.visibility = "hidden";
+				document.getElementById("standButton").style.visibility = "hidden";
+				gameDone = true;
+				console.log("This is the first if statement in checkscore");
+				setTimeout(function() {endGame()}, 2000);
+			}
+			else if (computerTotal > 21 || computerTotal == 21) {
+				document.getElementById("hitButton").style.visibility = "hidden";
+				document.getElementById("standButton").style.visibility = "hidden";
+				gameDone = true;
+				console.log("This is the second if statement in checkscore");
+				setTimeout(function() {endGame()}, 2000);
+			}
+			else {
+				console.log("U total " + userTotal);
+				console.log("U current " + userCurrentCard);
+				console.log("C total " + computerTotal);
+				console.log("C current " + computerCurrentCard);
+			}
+		}
+		
+		
+		/*  Randomly generates a number between 1-10 and stores it in the variable currentCard, once stored, returns the value
+			This function chooses to store the value in variable rather than just return the result because currentCard is sometimes refereced outside of this call.
+		*/
+		function getCard() {
+			var currentCard = Math.floor(Math.random() * 10)+1
+			return currentCard;
+		}
+		
+		
+		/*
+			To clear up possible confusion.
+			
+			the delayToUse variable calls the randomTime function to chose one of the three delay lengths in milliseconds (one second = 1000ms)
+			Once the function is run, the setTimeout function (pre-existing) is used to delay the execution of the ComputerDraw function where
+			delayToUse stores the delay.
+			
+			This same exact setup is used at startGame when telling the computer to draw
+			
+			
+		*/
+		
+		function userHit() {
+			delayToUse = randomTime();
+			var currentCard = getCard();
+			updateDisplays(currentCard);
+			checkScores();
+			if (computerTotal < 17) {
+			setTimeout(function() {if (gameDone == false){computerDraw(); console.log("userHit if thing");} else {""}}, delayToUse);
+			
+			
+			}
+			else {
+				""
+			}
+		}
+		
+		
+		/*
+			
+			This is the function that decides what time to use. 
+			You can add as many delays as you would like and it will still work as long as you update the numberOfDelays variable to be coherent with 
+			the amount of delays in the array.
+			
+			
+			The loop checks to see if the randomly generated number (randomNum) matches i.
+			If it does it breaks the loop and returns the value associated with i position in the array
+		*/
+		function randomTime() {
+			var numberOfDelays = 5;
+			var randomNum = Math.floor(Math.random() * numberOfDelays) + 1
+			var delayArray = [1250, 1750, 2250, 500, 750]
+			
+			for (i=0; i != randomNum; i++) {
+				if ( i == randomNum) {
+					break;
+				}
+				return delayArray[i];
+			}
+			
+		}
+		
+		
+		/*
+		
+			As long as the gameDone variable is false the computer will draw a card, update the text boxes, and make sure none of the boundaries are overstepped.
+			If a boundary is reached, it ends the game and decides who wins.
+		
+		*/
+		function computerDraw() {
+				if (gameDone == false) {
+					computerCurrentCard = getCard();
+					updateComputerDisplays(computerCurrentCard);
+					console.log("this runs if the game is not done in computerDraw")
+					checkScores();
+				}
+				else {
+					""
+				}
+		}
+		
+		
+		/*
+		
+			When the user clicks the stand button this function runs.
+			
+			immediately it switches the hasStood variable to true which allows for more checks to be done within checkScores
+			
+			
+			while the computer has a total less than or equal to the total the user has, and the total the user has is less than 21, the computer draws a card
+			then if the total the computer has is greater than the total the user has, the game is not done, and the total of the computer is less than 21 it will check scores
+			
+		
+		*/
+		function userStand() {
+			document.getElementById("hitButton").style.visibility = "hidden";
+			document.getElementById("standButton").style.visibility = "hidden";
+			hasStood = true;
+			while (computerTotal <= userTotal && userTotal < 21 ) { //runs if computer has less than or the same amount as user and user has under 21
+				computerDraw();
+				console.log("This is loop in the stand function");
+			} 
+		
+			
+			if (computerTotal > userTotal && gameDone == false && computerTotal < 21) { //runs if computer has more than user and the game is not done yet
+				checkScores();
+			}
+			else {
+			 ""
+			}
+			
+		}
+		
+		
+		
+		/*
+		
+			This functions simply checks who wins by cycling through if statements to see what is true.
+			
+			the reason the hasStood check is on the second chunk of statements is because it would give the user two results rather than one.
+			this seemed to fix that issue.
+		
+		*/
+		function endGame() {
+		
+		
+			if (userTotal == 21 && computerTotal == 21) {
+				gameTie();
+				console.log("both at 21");
+			}
+			else if (userTotal > 21 || computerTotal == 21) {
+				userLose();
+				console.log("user over or computer 21")
+			}
+			else if (computerTotal > 21 || userTotal == 21) {
+				userWin();
+				console.log("computer over or user 21");
+			}
+			else {
+				""
+			}
+			
+			if (hasStood == true) {
+				if (userTotal > computerTotal) {
+					userWin();
+					console.log("user has more than computer");
+				}
+				else if (computerTotal > userTotal) {
+					userLose();
+				
+				}
+				else {
+					console.log("shouldnt be here but ok");
+				
+				}
+			}
+		}
+		
+		
+		
+		
+		/*
+		
+			This resets all the scores, as well as the boolean values so that the next round can progress.
+			
+			All of the text boxes that are  not in the stats area are set to blank again and the visibility of the buttons is restored because they are taken when the game ends.
+		
+		*/
+		function nextRound() {
+			userTotal = 0;
+			userCurrentCard = 0;
+			computerTotal = 0;
+			computerCurrentCard = 0;
+			hasStood = false;
+			gameDone = false;
+			
+			document.playAreaForm.currentCard.value = "";
+			document.playAreaForm.totalCardNumber.value = "";
+			document.playAreaForm.computersCardBox.value = "";
+			document.playAreaForm.computersTotalBox.value = "";
+			console.log("Game restarting anything past this point is late");
+			
+			document.getElementById("hitButton").style.visibility = "visible";
+			document.getElementById("standButton").style.visibility = "visible";
+			startGame();
+		}
+		
+		
+		/*
+		
+			All of the statements below will alert the user with a message that they won, lost or tied and then update the stats boxes to show
+			wins, losses, ties, and games played
+		
+		*/
+		function userWin() {
+			endGameCheck = alert("You won!");
+			document.statsAreaForm.gamesPlayedBox.value = Number(document.statsAreaForm.gamesPlayedBox.value) + 1;
+			document.statsAreaForm.winCountBox.value = Number(document.statsAreaForm.winCountBox.value) + 1;
+			if (Number(document.statsAreaForm.gamesPlayedBox.value) >= gamesToPlay) {
+				announceWinner();
+			}
+			else {
+			nextRound();
+			}
+			
+		}
+			
+		function userLose() {
+			endGameCheck = alert("You lost.");
+			document.statsAreaForm.gamesPlayedBox.value = Number(document.statsAreaForm.gamesPlayedBox.value) + 1;
+			document.statsAreaForm.lossCountBox.value = Number(document.statsAreaForm.lossCountBox.value) + 1;
+			if (Number(document.statsAreaForm.gamesPlayedBox.value) >= gamesToPlay) {
+				announceWinner();
+			}
+			else {
+			nextRound();
+			}
+		}
+			
+		function gameTie() {
+			endGameCheck = alert("Tie!")
+			document.statsAreaForm.gamesPlayedBox.value = Number(document.statsAreaForm.gamesPlayedBox.value) + 1;
+			document.statsAreaForm.gamesTiedBox.value = Number(document.statsAreaForm.gamesTiedBox.value) + 1;
+			if (Number(document.statsAreaForm.gamesPlayedBox.value) == gamesToPlay) {
+				announceWinner();
+			}
+			else {
+			nextRound();
+			}
+		}
+		
+		
+		/*
+		
+			Both of the functions below are passed the current card's value and essentially do the same thing, for different boxes.
+			
+			They update the total and then change the text within the boxes.
+			
+			After reading the names, it becomes apparent that the top function changes the boxes for the user and the second does the same but for the computer.
+		
+		*/
+		function updateDisplays(current) {
+			userTotal += current;
+			document.playAreaForm.currentCard.value = current;
+			document.playAreaForm.totalCardNumber.value = userTotal;
+		}
+		
+		
+		function updateComputerDisplays(current) {
+			computerTotal += current;
+			document.playAreaForm.computersCardBox.value = current;
+			document.playAreaForm.computersTotalBox.value = computerTotal;
+		}
+		
+		function announceWinner() {
+			if (Number(document.statsAreaForm.winCountBox.value) > Number(document.statsAreaForm.lossCountBox.value)) {
+				alert("You win this set " + document.statsAreaForm.winCountBox.value + "-" + document.statsAreaForm.lossCountBox.value + "!");
+			}
+			else if (Number(document.statsAreaForm.winCountBox.value) == Number(document.statsAreaForm.lossCountBox.value)) {
+				alert("It was a tie " + document.statsAreaForm.winCountBox.value + "-" + document.statsAreaForm.lossCountBox.value + "!");
+			}
+			else {
+				alert("You lost this set " + document.statsAreaForm.winCountBox.value + "-" + document.statsAreaForm.lossCountBox.value)
+			}
+			
+			document.getElementById("restartGameButton").style.visibility = "visible";
+		}
+		
+		
+		
+	</script>
+		<h2>Modified Black Jack</h2>
+		<hr>
+	</header>
+	</div>
+
+	<div id="body">
+	<body>
+		<!-- The playAreaForm is responsible for housing all of the text boxes and buttons that the user will use during the game. -->
+		<form name="playAreaForm">
+			<div id="hitButton"><INPUT TYPE="button" VALUE="Hit" name="hitBTN" onClick="userHit()" ></div>
+			<div id="standButton"><INPUT TYPE="button" VALUE="Stand" name="standBTN" onClick="userStand()"><br></div>
+			<div id="currentBoxID">Current Card's Value:<INPUT disabled TYPE="text" value="" NAME="currentCard"></div>
+			<div id="totalBoxID">All your cards' values:<INPUT disabled TYPE="text" value="" NAME="totalCardNumber"></div>
+			<div id="startGameButton"><INPUT TYPE="button" name="startingGameButton" VALUE="Start" onClick="startAll()"><br></div>
+			<div id="computersCurrentBoxID">Computer's Draw:<INPUT disabled TYPE="text" value="" NAME="computersCardBox"></div>
+			<div id="computersTotalBoxID">Computer's Total:<INPUT disabled TYPE="text" value="" NAME="computersTotalBox"></div>
+			<div id="restartGameButton"><INPUT TYPE="button" name="restartingGameButton" VALUE="Restart" onClick="location.reload()"><br></div>
+		
+		</form>
+	
+		<br><br><br><br><br><br><br><br><br>
+	
+		<!-- Below is the section for all the HTML for the 'stats' area visible on webpage -->
+		<form name="statsAreaForm">
+		<hr>
+		<h4>Stats</h4>
+		<div id="totalWins">Wins:<INPUT disabled TYPE="text" NAME="winCountBox" value="0"><br></div>
+		<div id="totalLosses">Losses:<INPUT disabled TYPE="text" NAME="lossCountBox" value="0"><br></div>
+		<div id="totalGames">Games Played<INPUT disabled TYPE="text" NAME="gamesPlayedBox" value="0"><br></div>
+		<div id="totalTies">Ties:<INPUT disabled TYPE="text" NAME="gamesTiedBox" value="0"><br></div>
+		</form>
+
+	</body>
+	</div> 
+
+
+	<div id="footer">
+	<footer>
+		<p style="color:slateGray; font-size: 12;">Created By Sean Dobrowolsky</p>
+		<a  href="blackjack_splash_page.html" style="text-decoration: underline; text-decoration-color: slateGray"><p style="color: slateGray; font-size: 10;">See instructions</p></a>
+	</footer>
+	</div>
+</div>
+</html>
